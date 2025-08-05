@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Telram Anak Binaan</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    input, button { margin: 5px; padding: 5px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background-color: #eee; }
+  </style>
+</head>
+<body>
+  <h2>Telram Anak Binaan</h2>
+  <label>Nama: <input id="nama" type="text"></label>
+  <label>Tgl Penahanan: <input id="tgl" type="date"></label>
+  <label>Pidana (Th): <input id="th" type="number" value="0"></label>
+  <label>Bln: <input id="bln" type="number" value="0"></label>
+  <label>Hr: <input id="hr" type="number" value="0"></label>
+  <label>Remisi (Hr): <input id="remisi" type="number" value="0"></label>
+  <button onclick="hitungDanSimpan()">Hitung & Simpan</button>
+  <button onclick="cetakPDF()">Cetak Semua PDF</button>
+
+  <table id="tabel">
+    <thead>
+      <tr>
+        <th>Nama</th><th>Tgl Masuk</th><th>Lama Pidana</th><th>PB</th><th>CB</th><th>CMB</th>
+        <th>Remisi</th><th>Tgl Bebas</th><th>Status</th><th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    function tambahTanggal(tgl, th, bln, hr) {
+      let d = new Date(tgl);
+      d.setFullYear(d.getFullYear() + parseInt(th));
+      d.setMonth(d.getMonth() + parseInt(bln));
+      d.setDate(d.getDate() + parseInt(hr));
+      return d;
+    }
+
+    function formatTanggal(d) {
+      return d.toISOString().split('T')[0];
+    }
+
+    function hitungDanSimpan() {
+      let nama = document.getElementById('nama').value;
+      let tgl = document.getElementById('tgl').value;
+      let th = +document.getElementById('th').value;
+      let bln = +document.getElementById('bln').value;
+      let hr = +document.getElementById('hr').value;
+      let remisi = +document.getElementById('remisi').value;
+
+      if (!nama || !tgl) return alert('Lengkapi data!');
+
+      let masuk = new Date(tgl);
+      let pb = tambahTanggal(tgl, th * 0.5, bln * 0.5, hr * 0.5);
+      let cb = tambahTanggal(tgl, th * 0.75, bln * 0.75, hr * 0.75);
+      let cmb = tambahTanggal(tgl, th, bln, hr);
+      cmb.setDate(cmb.getDate() - remisi);
+      let status = new Date() >= cmb ? 'Bebas' : 'Menjalani';
+
+      let tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${nama}</td>
+        <td>${formatTanggal(masuk)}</td>
+        <td>${th} Th, ${bln} Bln, ${hr} Hr</td>
+        <td>${formatTanggal(pb)}</td>
+        <td>${formatTanggal(cb)}</td>
+        <td>${formatTanggal(cmb)}</td>
+        <td>${remisi} Hr</td>
+        <td>${formatTanggal(cmb)}</td>
+        <td>${status}</td>
+        <td><button onclick="hapus(this)">Hapus</button></td>
+      `;
+      document.querySelector('#tabel tbody').appendChild(tr);
+    }
+
+    function hapus(btn) {
+      btn.parentElement.parentElement.remove();
+    }
+
+    function cetakPDF() {
+      window.print();
+    }
+  </script>
+</body>
+</html>
