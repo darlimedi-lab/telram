@@ -1,0 +1,202 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Telram - Masa Pidana + PDF</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; }
+    input, button, select { padding: 8px; margin: 5px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background: #eee; }
+    .logout { float: right; margin-top: -50px; }
+  </style>
+</head>
+<body>
+<script>
+  if (localStorage.getItem("loginTelram") !== "true") {
+    window.location.href = "login.html";
+  }
+</script>
+
+<h2>Aplikasi TELRAM – Perhitungan Masa Pidana</h2>
+<button class="logout" onclick="logout()">Logout</button>
+
+<form id="form">
+  <input type="hidden" id="editIndex" value="-1">
+  Nama: <input type="text" id="nama" required>
+  Tgl Penahanan: <input type="date" id="tglMasuk" required>
+  Pidana (Th): <input type="number" id="th" value="0">
+  Bln: <input type="number" id="bl" value="0">
+  Hr: <input type="number" id="hr" value="0"><br>
+  Remisi (Hr): <input type="number" id="remisi" value="0">
+  <button type="submit">Hitung & Simpan</button>
+</form>
+
+<button onclick="cetakSemua()">Cetak Semua PDF</button>
+
+<div id="printArea">
+<table id="hasil">
+  <thead>
+    <tr>
+      <th>Nama</th><th>Tgl Masuk</th><th>Lama Pidana</th><th>PB</th><th>CB</th><th>CMB</th>
+      <th>Remisi</th><th>Tgl Bebas</th><th>Status</th><th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+</div>
+
+<script>
+  const form = document.getElementById("form");
+  const tbody = document.querySelector("#hasil tbody");
+
+  function hitungTanggal(tgl, th, bl, hr) {
+    const d = new Date(tgl);
+    d.setFullYear(d.getFullYear() + parseInt(th));
+    d.setMonth(d.getMonth() + parseInt(bl));
+    d.setDate(d.getDate() + parseInt(hr));
+    return d;
+  }
+
+  function formatTanggal(tgl) {
+    return tgl.toISOString().split('T')[0];
+  }
+
+  function simpanData(data) {
+    localStorage.setItem("dataTelram", JSON.stringify(data));
+  }
+
+  function ambilData() {
+    return JSON.parse(localStorage.getItem("dataTelram") || "[]");
+  }
+
+  function tampilkanData() {
+    const data = ambilData();
+    tbody.innerHTML = "";
+    data.forEach((item, index) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${item.nama}</td>
+        <td>${item.tglMasuk}</td>
+        <td>${item.th}th ${item.bl}bl ${item.hr}hr</td>
+        <td>${item.pb}</td>
+        <td>${item.cb}</td>
+        <td>${item.cmb}</td>
+        <td>${item.remisi} hr</td>
+        <td>${item.bebas}</td>
+        <td>${item.status}</td>
+        <td>
+          <button onclick="editData(${index})">Edit</button>
+          <button onclick="hapusData(${index})">Hapus</button>
+          <button onclick="cetakIndividu(${index})">Cetak</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  form.onsubmit = function(e) {
+    e.preventDefault();
+    const nama = document.getElementById("nama").value;
+    const tglMasuk = document.getElementById("tglMasuk").value;
+    const th = +document.getElementById("th").value;
+    const bl = +document.getElementById("bl").value;
+    const hr = +document.getElementById("hr").value;
+    const remisi = +document.getElementById("remisi").value;
+    const editIndex = +document.getElementById("editIndex").value;
+
+    const tanggalBebas = hitungTanggal(tglMasuk, th, bl, hr);
+    const bebasSetelahRemisi = new Date(tanggalBebas);
+    bebasSetelahRemisi.setDate(bebasSetelahRemisi.getDate() - remisi);
+
+    const pb = new Date(tglMasuk); pb.setDate(pb.getDate() + 0.5 * ((tanggalBebas - new Date(tglMasuk)) / (1000*3600*24)));
+    const cb = new Date(tglMasuk); cb.setDate(cb.getDate() + 0.66 * ((tanggalBebas - new Date(tglMasuk)) / (1000*3600*24)));
+    const cmb = new Date(tglMasuk); cmb.setDate(cmb.getDate() + 0.75 * ((tanggalBebas - new Date(tglMasuk)) / (1000*3600*24)));
+
+    const today = new Date();
+    const status = today >= bebasSetelahRemisi ? "Bebas" : "Masih Menjalani";
+
+    const newData = {
+      nama, tglMasuk, th, bl, hr, remisi,
+      pb: formatTanggal(pb),
+      cb: formatTanggal(cb),
+      cmb: formatTanggal(cmb),
+      bebas: formatTanggal(bebasSetelahRemisi),
+      status
+    };
+
+    const data = ambilData();
+    if (editIndex >= 0) {
+      data[editIndex] = newData;
+      document.getElementById("editIndex").value = -1;
+    } else {
+      data.push(newData);
+    }
+
+    simpanData(data);
+    tampilkanData();
+    form.reset();
+  };
+
+  function editData(index) {
+    const data = ambilData()[index];
+    document.getElementById("nama").value = data.nama;
+    document.getElementById("tglMasuk").value = data.tglMasuk;
+    document.getElementById("th").value = data.th;
+    document.getElementById("bl").value = data.bl;
+    document.getElementById("hr").value = data.hr;
+    document.getElementById("remisi").value = data.remisi;
+    document.getElementById("editIndex").value = index;
+  }
+
+  function hapusData(index) {
+    const data = ambilData();
+    if (confirm("Yakin mau hapus data ini?")) {
+      data.splice(index, 1);
+      simpanData(data);
+      tampilkanData();
+    }
+  }
+
+  function cetakIndividu(index) {
+    const data = ambilData()[index];
+    const doc = new jspdf.jsPDF();
+    doc.setFontSize(12);
+    doc.text("Laporan Narapidana", 20, 20);
+    doc.text(`Nama: ${data.nama}`, 20, 30);
+    doc.text(`Tanggal Masuk: ${data.tglMasuk}`, 20, 40);
+    doc.text(`Lama Pidana: ${data.th} Tahun ${data.bl} Bulan ${data.hr} Hari`, 20, 50);
+    doc.text(`PB: ${data.pb}`, 20, 60);
+    doc.text(`CB: ${data.cb}`, 20, 70);
+    doc.text(`CMB: ${data.cmb}`, 20, 80);
+    doc.text(`Remisi: ${data.remisi} Hari`, 20, 90);
+    doc.text(`Tanggal Bebas: ${data.bebas}`, 20, 100);
+    doc.text(`Status: ${data.status}`, 20, 110);
+    doc.save(`Laporan_${data.nama}.pdf`);
+  }
+
+  function cetakSemua() {
+    html2canvas(document.getElementById("printArea")).then(canvas => {
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jspdf.jsPDF("l", "mm", "a4");
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      pdf.addImage(imgData, "PNG", 10, 10, pdfWidth - 20, pdfHeight);
+      pdf.save("Laporan_Semua_Napi.pdf");
+    });
+  }
+
+  function logout() {
+    localStorage.removeItem("loginTelram");
+    window.location.href = "login.html";
+  }
+
+  tampilkanData();
+</script>
+</body>
+</html>
