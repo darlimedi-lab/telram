@@ -1,60 +1,29 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Login TELRAM</title>
+  <meta charset="UTF-8" />
+  <title>Login Telram</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #eef;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .login-box {
-      background: white;
-      padding: 20px 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px #aaa;
-      text-align: center;
-    }
-    input {
-      margin: 10px 0;
-      padding: 8px;
-      width: 100%;
-    }
-    button {
-      padding: 10px 20px;
-      background: #4CAF50;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #45a049;
-    }
+    body { font-family: sans-serif; text-align: center; padding: 50px; }
+    input { display: block; margin: 10px auto; padding: 8px; }
+    button { padding: 8px 16px; }
   </style>
 </head>
 <body>
-  <div class="login-box">
-    <h2>Login Petugas TELRAM</h2>
-    <input type="text" id="username" placeholder="Username" required>
-    <input type="password" id="password" placeholder="Password" required>
-    <button onclick="login()">Login</button>
-    <p id="pesan" style="color:red;"></p>
-  </div>
+  <h2>Login Petugas Telram</h2>
+  <input type="text" id="username" placeholder="Username" required />
+  <input type="password" id="password" placeholder="Password" required />
+  <button onclick="login()">Login</button>
 
   <script>
     function login() {
-      const user = document.getElementById("username").value;
-      const pass = document.getElementById("password").value;
-      if (user === "andi" && pass === "telram123") {
-        localStorage.setItem("loginTelram", "true");
-        window.location.href = "index.html";
+      const user = document.getElementById('username').value;
+      const pass = document.getElementById('password').value;
+      if (user === 'admin' && pass === '12345') {
+        window.location.href = 'index.html';
       } else {
-        document.getElementById("pesan").textContent = "Username atau password salah!";
+        alert('Login gagal! Username atau password salah.');
       }
     }
   </script>
