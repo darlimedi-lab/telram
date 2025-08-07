@@ -1,0 +1,73 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Telram Anak Binaan</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1, h2 { color: #2c3e50; }
+        label { display: inline-block; width: 150px; margin-top: 10px; }
+        input, select { padding: 5px; width: 200px; }
+        button { margin-top: 15px; padding: 7px 15px; }
+        .logout { float: right; margin-top: -40px; }
+        footer { margin-top: 30px; font-size: 0.9em; color: #555; }
+    </style>
+</head>
+<body>
+    <img src="Logo_Kemenkumham.jpg" alt="Logo Kemenkumham" width="120">
+    <h1>Telram Anak Binaan</h1>
+    <div class="logout"><button onclick="logout()">Logout</button></div>
+    <h2>LPKA Kelas II Jakarta</h2>
+
+    <h3>Input Data Anak Binaan</h3>
+    <form id="formAnak">
+        <label>Nama Lengkap:</label><input type="text"><br>
+        <label>Tempat Lahir:</label><input type="text"><br>
+        <label>Tanggal Lahir:</label><input type="date"><br>
+        <label>Jenis Kelamin:</label>
+        <select>
+            <option value="Laki-laki">Laki-laki</option>
+            <option value="Perempuan">Perempuan</option>
+        </select><br>
+        <label>Tanggal Masuk:</label><input type="date" id="tglMasuk"><br>
+        <label>Lama Pidana (Tahun):</label><input type="number" id="tahun"><br>
+        <label>Lama Pidana (Bulan):</label><input type="number" id="bulan"><br>
+        <label>Lama Pidana (Hari):</label><input type="number" id="hari"><br>
+        <button type="button" onclick="hitungPB()">Simpan Data</button>
+    </form>
+
+    <div id="hasil" style="margin-top:20px;"></div>
+
+    <footer>
+        <p>Kementerian Hukum dan HAM RI - Direktorat Jenderal Pemasyarakatan</p>
+        <p>LPKA Kelas II Jakarta - Jl. Raya Gandul, Ciganjur, Jakarta Selatan</p>
+    </footer>
+
+    <script>
+        function logout() {
+            alert("Logout berhasil!");
+            // Simulasi redirect logout
+            window.location.href = "login.html";
+        }
+
+        function hitungPB() {
+            const tglMasuk = new Date(document.getElementById("tglMasuk").value);
+            const tahun = parseInt(document.getElementById("tahun").value) || 0;
+            const bulan = parseInt(document.getElementById("bulan").value) || 0;
+            const hari = parseInt(document.getElementById("hari").value) || 0;
+
+            const totalHari = (tahun * 365) + (bulan * 30) + hari;
+            const pbHari = Math.floor(totalHari / 2);
+
+            const tanggalPB = new Date(tglMasuk);
+            tanggalPB.setDate(tanggalPB.getDate() + pbHari);
+
+            const opsi = { year: 'numeric', month: 'long', day: 'numeric' };
+            const pbFormatted = tanggalPB.toLocaleDateString('id-ID', opsi);
+
+            document.getElementById("hasil").innerHTML = `<strong>Tanggal PB (½ masa pidana):</strong> ${pbFormatted}`;
+        }
+    </script>
+</body>
+</html>
