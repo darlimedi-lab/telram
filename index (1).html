@@ -1,0 +1,53 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Telram Anak Binaan</title>
+    <link rel="stylesheet" href="style.css">
+    <script defer src="script.js"></script>
+</head>
+<body>
+    <header>
+        <img src="Logo_Kemenkumham.jpg" alt="Logo Kemenkumham" style="height: 80px;">
+        <h1>Telram Anak Binaan</h1>
+        <h2>LPKA Kelas II Jakarta</h2>
+        <button onclick="logout()">Logout</button>
+    </header>
+
+    <main>
+        <section id="form-section">
+            <h3>Input Data Anak Binaan</h3>
+            <form id="formAnak">
+                <label>Nama Lengkap: <input type="text" id="nama" required></label><br>
+                <label>Tempat Lahir: <input type="text" id="tempatLahir" required></label><br>
+                <label>Tanggal Lahir: <input type="date" id="tanggalLahir" required></label><br>
+                <label>Jenis Kelamin:
+                    <select id="jenisKelamin" required>
+                        <option value="L">Laki-laki</option>
+                        <option value="P">Perempuan</option>
+                    </select>
+                </label><br>
+                <label>Tanggal Masuk: <input type="date" id="tanggalMasuk" required></label><br>
+                <label>Lama Pidana (Tahun): <input type="number" id="pidanaTahun" required></label><br>
+                <label>Lama Pidana (Bulan): <input type="number" id="pidanaBulan" required></label><br>
+                <label>Lama Pidana (Hari): <input type="number" id="pidanaHari" required></label><br>
+                <button type="submit">Simpan Data</button>
+            </form>
+        </section>
+
+        <section id="hasil-section" style="display:none;">
+            <h3>Hasil Perhitungan</h3>
+            <p><strong>Nama:</strong> <span id="outputNama"></span></p>
+            <p><strong>Tanggal Bebas:</strong> <span id="outputTanggalBebas"></span></p>
+            <p><strong>Tanggal PB (½ Masa Pidana):</strong> <span id="outputTanggalPB"></span></p>
+            <button onclick="cetakPDF()">Cetak PDF</button>
+        </section>
+    </main>
+
+    <footer>
+        <p>Kementerian Hukum dan HAM RI - Direktorat Jenderal Pemasyarakatan</p>
+        <p>LPKA Kelas II Jakarta - Jl. Raya Gandul, Ciganjur, Jakarta Selatan</p>
+    </footer>
+</body>
+</html>
